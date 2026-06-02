@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de Remitos — ALLTEC BIO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --navy:#1e325a; --navy-deep:#162849;
+  --leaf:#19a870;
+  --green:#0a5a3c; --green-pale:#f0f9f5; --green-light:#c8e8db;
+  --danger:#b83228;
+  --bg:#f7f8f7; --surface:#ffffff;
+  --border:#e4ece8;
+  --ink:#1a2233; --ink-soft:#5b6776; --ink-faint:#8a96a3;
+  --age0:#19a870; --age1:#2f7ed8; --age2:#e0b020; --age3:#e08a20; --age4:#b83228;
+  --r-sm:12px; --r-md:14px; --r-lg:18px;
+  --sh-sm:0 1px 3px rgba(22,40,73,.06),0 1px 2px rgba(22,40,73,.04);
+  --sh-md:0 6px 24px rgba(22,40,73,.10),0 2px 6px rgba(22,40,73,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+.mono{font-family:'DM Mono',monospace}
+.serif{font-family:'Fraunces',serif}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleUp{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(25,168,112,.55)}70%{box-shadow:0 0 0 8px rgba(25,168,112,0)}100%{box-shadow:0 0 0 0 rgba(25,168,112,0)}}
+.fade-up{animation:fadeUp .4s cubic-bezier(.2,.7,.3,1) both}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:40;background:linear-gradient(135deg,var(--navy),var(--navy-deep));color:#fff;padding:14px 28px;box-shadow:var(--sh-md)}
+.hdr-inner{max-width:1320px;margin:0 auto;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:11px}
+.logo-mark{width:38px;height:38px;border-radius:11px;background:var(--leaf);display:grid;place-items:center;flex-shrink:0;box-shadow:0 4px 12px rgba(25,168,112,.4)}
+.logo-mark svg{width:22px;height:22px}
+.logo-txt b{font-family:'Fraunces',serif;font-weight:600;font-size:18px;letter-spacing:.2px;display:block;line-height:1}
+.logo-txt span{font-size:11px;color:#9fb3d4;letter-spacing:1.5px;text-transform:uppercase}
+.hdr-title{font-family:'Fraunces',serif;font-size:15px;font-weight:500;color:#cdd9ee;border-left:1px solid rgba(255,255,255,.18);padding-left:20px}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.db-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);padding:7px 13px;border-radius:999px;font-size:12px}
+.db-pill .mono{color:#fff;font-weight:500}
+.db-pill svg{width:14px;height:14px;opacity:.8}
+.upload-btn{display:flex;align-items:center;gap:7px;background:var(--leaf);color:#fff;border:none;padding:8px 14px;border-radius:999px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:.2s}
+.upload-btn:hover{background:#15945f;transform:translateY(-1px)}
+.upload-btn svg{width:14px;height:14px}
+.meta{text-align:right;font-size:11px;color:#9fb3d4;line-height:1.4}
+.meta .mono{color:#cdd9ee}
+.live{display:inline-flex;align-items:center;gap:6px}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--leaf);animation:pulse 2s infinite}
+
+main{max-width:1320px;margin:0 auto;padding:24px 28px 60px}
+
+/* FILTER BAR */
+.filterbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 14px;box-shadow:var(--sh-sm);margin-bottom:20px;margin-top:4px}
+.field{position:relative}
+.field svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--ink-faint);pointer-events:none}
+select,.search{font-family:inherit;font-size:13px;color:var(--ink);background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 12px 9px 34px;outline:none;transition:.2s;cursor:pointer;appearance:none}
+select{padding-right:30px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a96a3' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;background-size:15px}
+.search{cursor:text;min-width:220px;flex:1}
+select:focus,.search:focus{border-color:var(--leaf);background-color:#fff}
+.clear-btn{margin-left:auto;display:flex;align-items:center;gap:6px;background:var(--green-pale);color:var(--green);border:1px solid var(--green-light);padding:9px 14px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:.2s}
+.clear-btn:hover{background:var(--green-light)}
+.clear-btn svg{width:14px;height:14px}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:18px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-sm);transition:.25s}
+.kpi:hover{box-shadow:var(--sh-md);transform:translateY(-2px)}
+.kpi-top{height:5px}
+.kpi-body{padding:18px 20px 20px}
+.kpi-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-faint);display:flex;align-items:center;gap:8px}
+.kpi-label svg{width:16px;height:16px}
+.kpi-val{font-family:'Fraunces',serif;font-size:38px;font-weight:600;line-height:1.05;margin-top:10px;color:var(--ink)}
+.kpi-val small{font-size:16px;font-weight:500;color:var(--ink-faint);margin-left:4px}
+.kpi-sub{font-size:12px;color:var(--ink-soft);margin-top:6px}
+
+/* AGING GRID */
+.section-h{display:flex;align-items:center;gap:10px;margin:24px 0 12px}
+.section-h h2{font-family:'Fraunces',serif;font-size:17px;font-weight:600}
+.section-h .hint{font-size:12px;color:var(--ink-faint)}
+.aging-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:8px}
+.age-card{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--c);border-radius:var(--r-md);padding:14px 15px;cursor:pointer;transition:.2s;box-shadow:var(--sh-sm);position:relative}
+.age-card:hover{transform:translateY(-2px);box-shadow:var(--sh-md)}
+.age-card.active{background:var(--surface);border-color:var(--c);box-shadow:0 0 0 2px var(--c) inset,var(--sh-md)}
+.age-card .range{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--c)}
+.age-card .count{font-family:'Fraunces',serif;font-size:28px;font-weight:600;margin-top:6px}
+.age-card .desc{font-size:11px;color:var(--ink-faint);margin-top:2px}
+.age-card .tick{position:absolute;top:11px;right:11px;width:16px;height:16px;border-radius:50%;background:var(--c);display:none;place-items:center}
+.age-card.active .tick{display:grid}
+.age-card .tick svg{width:10px;height:10px;color:#fff}
+
+/* TABLE */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-sm);margin-top:6px}
+table{width:100%;border-collapse:collapse}
+thead th{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-faint);text-align:left;padding:13px 16px;background:#fbfcfb;border-bottom:1px solid var(--border);position:sticky;top:0}
+thead th.num{text-align:right}
+.group-row td{background:linear-gradient(90deg,var(--green-pale),transparent);padding:9px 16px;font-size:12px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+.group-row .gcount{font-family:'DM Mono',monospace;font-weight:500;color:var(--ink-faint);margin-left:8px}
+tbody tr.data-row{cursor:pointer;transition:background .15s}
+tbody tr.data-row:hover{background:var(--green-pale)}
+tbody td{padding:12px 16px;border-bottom:1px solid #f0f3f1;font-size:13px;vertical-align:middle}
+tbody tr.data-row:last-child td{border-bottom:none}
+.cell-strong{font-weight:600;color:var(--ink)}
+.cell-mono{font-family:'DM Mono',monospace;font-size:12px;color:var(--ink-soft)}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--green-pale);color:var(--green)}
+.tag.transf{background:#eaf2fc;color:#2f7ed8}
+.tag.pend{background:#fdeeec;color:var(--danger)}
+.numcell{text-align:right;font-family:'DM Mono',monospace;font-weight:500}
+.bar-wrap{display:flex;align-items:center;gap:9px;justify-content:flex-end}
+.bar-track{width:62px;height:6px;background:var(--bg);border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;background:var(--leaf)}
+.bar-fill.stock{background:var(--navy)}
+.age-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;font-family:'DM Mono',monospace;color:var(--ink-soft)}
+.age-pill .d{width:7px;height:7px;border-radius:50%;background:var(--c)}
+.empty{padding:50px 20px;text-align:center;color:var(--ink-faint)}
+.empty svg{width:38px;height:38px;opacity:.4;margin-bottom:10px}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(22,40,73,.45);backdrop-filter:blur(3px);z-index:80;display:none;align-items:center;justify-content:center;padding:24px}
+.overlay.open{display:flex;animation:fadeUp .25s ease both}
+.modal{background:var(--surface);border-radius:var(--r-lg);width:100%;max-width:560px;max-height:88vh;overflow:auto;box-shadow:var(--sh-md);animation:scaleUp .3s cubic-bezier(.2,.7,.3,1) both}
+.modal-head{background:linear-gradient(135deg,var(--navy),var(--navy-deep));color:#fff;padding:20px 24px;position:sticky;top:0}
+.modal-head .mt{font-size:12px;color:#9fb3d4;text-transform:uppercase;letter-spacing:1px}
+.modal-head .mr{font-family:'Fraunces',serif;font-size:24px;font-weight:600;margin-top:3px}
+.modal-head .mtag{margin-top:10px}
+.modal-close{position:absolute;top:18px;right:18px;width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.12);border:none;color:#fff;cursor:pointer;display:grid;place-items:center;transition:.2s}
+.modal-close:hover{background:rgba(255,255,255,.25)}
+.modal-body{padding:20px 24px 24px}
+.dl{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden}
+.dl .item{background:var(--surface);padding:13px 15px}
+.dl .item.full{grid-column:1/-1}
+.dl dt{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-faint)}
+.dl dd{font-family:'DM Mono',monospace;font-size:14px;color:var(--ink);margin-top:4px;word-break:break-word}
+.dl dd.coment{font-family:'DM Sans',sans-serif;font-size:13px;line-height:1.5;color:var(--ink-soft)}
+
+@media(max-width:980px){
+  .kpi-grid{grid-template-columns:1fr}
+  .aging-grid{grid-template-columns:repeat(2,1fr)}
+  .hdr-title{display:none}
+  .table-wrap{overflow-x:auto}
+  table{min-width:760px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-inner">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+          <path d="M2 21c0-3 1.85-5.36 5.08-6"/>
+        </svg>
+      </div>
+      <div class="logo-txt">
+        <b>ALLTEC <span style="color:var(--leaf);font-style:italic">bio</span></b>
+        <span>Cadena de Suministro</span>
+      </div>
+    </div>
+    <div class="hdr-title">Panel de Remitos</div>
+    <div class="hdr-right">
+      <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none">
+      <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Cargar .xlsx
+      </button>
+      <div class="db-pill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#9fb3d4" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>
+        <span class="mono" id="dbName">demo_remitos.xlsx</span>
+      </div>
+      <div class="meta">
+        <div class="live"><span class="dot"></span>En vivo</div>
+        <div>Actualizado <span class="mono" id="lastUpdate">—</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="filterbar">
+    <div class="field">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      <select id="fRegion"><option value="">Todas las regiones</option></select>
+    </div>
+    <div class="field">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <select id="fVendedor"><option value="">Todos los vendedores</option></select>
+    </div>
+    <div class="field">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <select id="fDeposito"><option value="">Todos los depósitos</option></select>
+    </div>
+    <div class="field">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" class="search" id="fSearch" placeholder="Buscar producto, cliente, remito…">
+    </div>
+    <button class="clear-btn" id="clearBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      Limpiar filtros
+    </button>
+  </div>
+
+  <div class="kpi-grid" id="kpis"></div>
+
+  <div class="section-h">
+    <h2>Análisis de Aging</h2>
+    <span class="hint">por fecha de emisión · hacé clic para filtrar</span>
+  </div>
+  <div class="aging-grid" id="aging"></div>
+
+  <div class="section-h">
+    <h2>Detalle de Documentos</h2>
+    <span class="hint" id="rowCount"></span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Remito / Documento</th>
+          <th>Producto · Lote</th>
+          <th>Cliente / Destino</th>
+          <th>Aging</th>
+          <th class="num">Emitida</th>
+          <th class="num">Stock</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</main>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+/* ============ DATOS DE EJEMPLO (CURRENT_DATA) ============ */
+let CURRENT_DATA = [
+  {tipo:"Ingreso de Mercadería",remito:"E-10421",puntoEmision:"0001",vendedor:"Carla Méndez",deposito:"CD Londrina",cliente:"Stock Central",region:"Sur",produto:"Inoculante Soja Premium",lote:"L-2401",data:"28/05/2026",venc:"28/05/2027",status:"OK",emitida:1200,estoque:1180,coment:"Recibido conforme NF, sin averías."},
+  {tipo:"Ingreso de Mercadería",remito:"E-10422",puntoEmision:"0001",vendedor:"Carla Méndez",deposito:"CD Londrina",cliente:"Stock Central",region:"Sur",produto:"Fertilizante Foliar Zn",lote:"L-2402",data:"24/05/2026",venc:"24/12/2026",status:"OK",emitida:800,estoque:760,coment:"Lote con vencimiento corto, priorizar salida."},
+  {tipo:"Ingreso de Mercadería",remito:"E-10408",puntoEmision:"0002",vendedor:"Rafael Tonin",deposito:"CD Maringá",cliente:"Stock Central",region:"Sur",produto:"Bioestimulante Raíz+",lote:"L-2390",data:"15/05/2026",venc:"15/05/2027",status:"OK",emitida:540,estoque:520,coment:"Control de calidad aprobado."},
+  {tipo:"Ingreso de Mercadería",remito:"E-10377",puntoEmision:"0001",vendedor:"Carla Méndez",deposito:"CD Londrina",cliente:"Stock Central",region:"Sur",produto:"Inoculante Maíz",lote:"L-2355",data:"02/05/2026",venc:"02/05/2027",status:"OK",emitida:2000,estoque:1340,coment:"Recepción parcial registrada."},
+  {tipo:"Ingreso de Mercadería",remito:"E-10301",puntoEmision:"0003",vendedor:"Diego Álvez",deposito:"CD Cascavel",cliente:"Stock Central",region:"Oeste",produto:"Coadyuvante Esparcidor",lote:"L-2288",data:"12/04/2026",venc:"12/04/2027",status:"OK",emitida:650,estoque:610,coment:""},
+
+  {tipo:"Transferencia de Stock",remito:"T-50912",puntoEmision:"0001",vendedor:"Rafael Tonin",deposito:"CD Maringá",cliente:"Sucursal Cascavel",region:"Oeste",produto:"Inoculante Soja Premium",lote:"L-2401",data:"30/05/2026",venc:"-",status:"EN_TRANSITO",emitida:300,estoque:0,coment:"Transferencia en tránsito, ETA 2 días."},
+  {tipo:"Transferencia de Stock",remito:"T-50908",puntoEmision:"0001",vendedor:"Carla Méndez",deposito:"CD Londrina",cliente:"Sucursal Maringá",region:"Sur",produto:"Fertilizante Foliar Zn",lote:"L-2402",data:"26/05/2026",venc:"-",status:"CONCLUIDO",emitida:200,estoque:200,coment:"Recibido en la sucursal."},
+  {tipo:"Transferencia de Stock",remito:"T-50880",puntoEmision:"0002",vendedor:"Diego Álvez",deposito:"CD Cascavel",cliente:"Sucursal Foz",region:"Oeste",produto:"Bioestimulante Raíz+",lote:"L-2390",data:"18/05/2026",venc:"-",status:"CONCLUIDO",emitida:150,estoque:150,coment:""},
+  {tipo:"Transferencia de Stock",remito:"T-50841",puntoEmision:"0001",vendedor:"Rafael Tonin",deposito:"CD Maringá",cliente:"Sucursal Londrina",region:"Sur",produto:"Inoculante Maíz",lote:"L-2355",data:"06/05/2026",venc:"-",status:"CONCLUIDO",emitida:480,estoque:480,coment:"Transferencia interna mensual."},
+  {tipo:"Transferencia de Stock",remito:"T-50790",puntoEmision:"0003",vendedor:"Diego Álvez",deposito:"CD Cascavel",cliente:"Sucursal Foz",region:"Oeste",produto:"Coadyuvante Esparcidor",lote:"L-2288",data:"20/04/2026",venc:"-",status:"CONCLUIDO",emitida:120,estoque:120,coment:""},
+
+  {tipo:"Remito de Venta",remito:"R-88231",puntoEmision:"0001",vendedor:"Carla Méndez",deposito:"CD Londrina",cliente:"Agropecuaria Buena Cosecha",region:"Sur",produto:"Inoculante Soja Premium",lote:"L-2401",data:"31/05/2026",venc:"15/06/2026",status:"PENDIENTE",emitida:90,estoque:0,coment:"A la espera de confirmación de pago."},
+  {tipo:"Remito de Venta",remito:"R-88230",puntoEmision:"0001",vendedor:"Carla Méndez",deposito:"CD Londrina",cliente:"Estancia Santa Rita",region:"Sur",produto:"Fertilizante Foliar Zn",lote:"L-2402",data:"29/05/2026",venc:"12/06/2026",status:"PENDIENTE",emitida:60,estoque:0,coment:"Entrega agendada para el 03/06."},
+  {tipo:"Remito de Venta",remito:"R-88198",puntoEmision:"0002",vendedor:"Rafael Tonin",deposito:"CD Maringá",cliente:"Cooperativa Norte PR",region:"Norte",produto:"Bioestimulante Raíz+",lote:"L-2390",data:"22/05/2026",venc:"05/06/2026",status:"PENDIENTE",emitida:140,estoque:0,coment:"Volumen alto, verificar paletización."},
+  {tipo:"Remito de Venta",remito:"R-88150",puntoEmision:"0002",vendedor:"Rafael Tonin",deposito:"CD Maringá",cliente:"Agro Triángulo",region:"Norte",produto:"Inoculante Maíz",lote:"L-2355",data:"14/05/2026",venc:"28/05/2026",status:"ATRASADO",emitida:220,estoque:0,coment:"El cliente solicitó reprogramación."},
+  {tipo:"Remito de Venta",remito:"R-88092",puntoEmision:"0003",vendedor:"Diego Álvez",deposito:"CD Cascavel",cliente:"Semillas Oeste S.A.",region:"Oeste",produto:"Coadyuvante Esparcidor",lote:"L-2288",data:"28/04/2026",venc:"12/05/2026",status:"ATRASADO",emitida:75,estoque:0,coment:"Pendiente logística — transportista."},
+  {tipo:"Remito de Venta",remito:"R-87940",puntoEmision:"0001",vendedor:"Carla Méndez",deposito:"CD Londrina",cliente:"Estancia Horizonte",region:"Sur",produto:"Inoculante Soja Premium",lote:"L-2401",data:"10/04/2026",venc:"24/04/2026",status:"ATRASADO",emitida:130,estoque:0,coment:"Saldo pendiente hace más de 50 días."},
+  {tipo:"Remito de Venta",remito:"R-87810",puntoEmision:"0003",vendedor:"Diego Álvez",deposito:"CD Cascavel",cliente:"Grupo Verde Campo",region:"Oeste",produto:"Bioestimulante Raíz+",lote:"L-2390",data:"22/03/2026",venc:"05/04/2026",status:"ATRASADO",emitida:200,estoque:0,coment:"Caso crítico — escalar a gerencia."},
+  {tipo:"Remito de Venta",remito:"R-88245",puntoEmision:"0002",vendedor:"Rafael Tonin",deposito:"CD Maringá",cliente:"Cooperativa Norte PR",region:"Norte",produto:"Fertilizante Foliar Zn",lote:"L-2402",data:"01/06/2026",venc:"16/06/2026",status:"PENDIENTE",emitida:45,estoque:0,coment:"Pedido nuevo, verificar disponibilidad."}
+];
+
+/* ============ ESTADO DE FILTROS ============ */
+const state = { region:"", vendedor:"", deposito:"", search:"", aging:null };
+
+const AGING = [
+  {key:0,range:"0–7 días",desc:"Reciente",color:"var(--age0)"},
+  {key:1,range:"8–15 días",desc:"Al día",color:"var(--age1)"},
+  {key:2,range:"16–30 días",desc:"Atención",color:"var(--age2)"},
+  {key:3,range:"31–60 días",desc:"Urgente",color:"var(--age3)"},
+  {key:4,range:"60+ días",desc:"Crítico",color:"var(--age4)"}
+];
+
+/* ============ HELPERS ============ */
+function parseDate(s){
+  if(!s) return null;
+  const m = String(s).trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if(!m) return null;
+  let [_,d,mo,y] = m; y=+y; if(y<100)y+=2000;
+  return new Date(y, +mo-1, +d);
+}
+function daysSince(s){
+  const dt = parseDate(s); if(!dt) return null;
+  return Math.floor((Date.now()-dt.getTime())/86400000);
+}
+function agingBucket(days){
+  if(days===null) return null;
+  if(days<=7) return 0;
+  if(days<=15) return 1;
+  if(days<=30) return 2;
+  if(days<=60) return 3;
+  return 4;
+}
+function fmt(n){ return (n||0).toLocaleString('es-AR'); }
+function uniq(arr){ return [...new Set(arr.filter(Boolean))].sort(); }
+function tipoTag(t){
+  if(/transf/i.test(t)) return 'transf';
+  if(/venta|venda/i.test(t)) return 'pend';
+  return '';
+}
+
+/* ============ FILTRADO ============ */
+function applyFilters(ignoreAging=false){
+  const q = state.search.toLowerCase();
+  return CURRENT_DATA.filter(r=>{
+    if(state.region && r.region!==state.region) return false;
+    if(state.vendedor && r.vendedor!==state.vendedor) return false;
+    if(state.deposito && r.deposito!==state.deposito) return false;
+    if(!ignoreAging && state.aging!==null && agingBucket(daysSince(r.data))!==state.aging) return false;
+    if(q){
+      const hay = [r.produto,r.cliente,r.remito,r.lote,r.vendedor,r.region,r.deposito].join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+/* ============ RENDER: KPIs ============ */
+function renderKPIs(rows){
+  const totalEmit = rows.reduce((s,r)=>s+(+r.emitida||0),0);
+  const totalStock = rows.reduce((s,r)=>s+(+r.estoque||0),0);
+  const pend = rows.reduce((s,r)=>s+Math.max((+r.emitida||0)-(+r.estoque||0),0),0);
+  const pendDocs = rows.filter(r=>(+r.emitida||0)-(+r.estoque||0)>0).length;
+  const kpis = [
+    {label:"Total Emitido",val:totalEmit,sub:`${rows.length} documentos en el filtro actual`,top:"var(--navy)",
+     icon:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'},
+    {label:"Total en Stock",val:totalStock,sub:`${(totalEmit?Math.round(totalStock/totalEmit*100):0)}% de lo emitido disponible`,top:"var(--leaf)",
+     icon:'<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>'},
+    {label:"Saldo Pendiente",val:pend,sub:`${pendDocs} documentos con saldo a liberar`,top:"var(--danger)",
+     icon:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'}
+  ];
+  document.getElementById('kpis').innerHTML = kpis.map((k,i)=>`
+    <div class="kpi fade-up" style="animation-delay:${i*60}ms">
+      <div class="kpi-top" style="background:${k.top}"></div>
+      <div class="kpi-body">
+        <div class="kpi-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="${k.top}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${k.icon}</svg>
+          ${k.label}
+        </div>
+        <div class="kpi-val">${fmt(k.val)}<small>un</small></div>
+        <div class="kpi-sub">${k.sub}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ============ RENDER: AGING ============ */
+function renderAging(){
+  const rows = applyFilters(true); // ignora el filtro de aging para mostrar la distribución
+  const counts = [0,0,0,0,0];
+  rows.forEach(r=>{ const b=agingBucket(daysSince(r.data)); if(b!==null) counts[b]++; });
+  document.getElementById('aging').innerHTML = AGING.map((a,i)=>`
+    <div class="age-card ${state.aging===a.key?'active':''} fade-up" style="--c:${a.color};animation-delay:${i*50}ms" data-age="${a.key}">
+      <div class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="range">${a.range}</div>
+      <div class="count">${counts[a.key]}</div>
+      <div class="desc">${a.desc}</div>
+    </div>`).join('');
+  document.querySelectorAll('.age-card').forEach(c=>c.onclick=()=>{
+    const k=+c.dataset.age;
+    state.aging = state.aging===k ? null : k;
+    render();
+  });
+}
+
+/* ============ RENDER: TABLA (agrupada por tipo) ============ */
+function renderTable(rows){
+  const tb = document.getElementById('tbody');
+  document.getElementById('rowCount').textContent = `${rows.length} ${rows.length===1?'registro':'registros'}`;
+  if(!rows.length){
+    tb.innerHTML = `<tr><td colspan="6"><div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <div>Ningún documento coincide con los filtros aplicados.</div></div></td></tr>`;
+    return;
+  }
+  const maxEmit = Math.max(...rows.map(r=>+r.emitida||0),1);
+  let html='';
+  rows.forEach(r=>{
+    const idx = CURRENT_DATA.indexOf(r);
+    const days = daysSince(r.data);
+    const b = agingBucket(days);
+    const color = b!==null ? AGING[b].color : 'var(--ink-faint)';
+    const emit=+r.emitida||0, stock=+r.estoque||0;
+    html += `<tr class="data-row" data-idx="${idx}">
+      <td>
+        <div class="cell-strong">${r.remito}</div>
+        <div class="cell-mono">PE ${r.puntoEmision} · ${r.data}</div>
+      </td>
+      <td>
+        <div class="cell-strong" style="font-weight:500">${r.produto}</div>
+        <div class="cell-mono">Lote ${r.lote}</div>
+      </td>
+      <td>
+        <div>${r.cliente}</div>
+        <div class="cell-mono">${r.region} · ${r.vendedor.split(' ')[0]}</div>
+      </td>
+      <td><span class="age-pill" style="--c:${color}"><span class="d"></span>${days!==null?days+'d':'—'}</span></td>
+      <td class="numcell"><div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:${Math.round(emit/maxEmit*100)}%"></div></div>${fmt(emit)}</div></td>
+      <td class="numcell"><div class="bar-wrap"><div class="bar-track"><div class="bar-fill stock" style="width:${Math.round(stock/maxEmit*100)}%"></div></div>${fmt(stock)}</div></td>
+    </tr>`;
+  });
+  tb.innerHTML = html;
+  tb.querySelectorAll('.data-row').forEach(tr=>tr.onclick=()=>openModal(+tr.dataset.idx));
+}
+
+/* ============ MODAL ============ */
+function openModal(idx){
+  const r = CURRENT_DATA[idx]; if(!r) return;
+  const days = daysSince(r.data);
+  const b = agingBucket(days);
+  const tagClass = tipoTag(r.tipo);
+  document.getElementById('modal').innerHTML = `
+    <div class="modal-head">
+      <button class="modal-close" onclick="closeModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <div class="mt">${r.tipo}</div>
+      <div class="mr">${r.remito}</div>
+      <div class="mtag"><span class="tag ${tagClass}">${b!==null?AGING[b].range:'—'} · ${days!==null?days+' días':'sin fecha'}</span></div>
+    </div>
+    <div class="modal-body">
+      <dl class="dl">
+        <div class="item"><dt>Punto de Emisión</dt><dd>${r.puntoEmision}</dd></div>
+        <div class="item"><dt>Depósito</dt><dd>${r.deposito}</dd></div>
+        <div class="item"><dt>Producto / SKU</dt><dd>${r.produto}</dd></div>
+        <div class="item"><dt>Lote</dt><dd>${r.lote}</dd></div>
+        <div class="item"><dt>Fecha Documento</dt><dd>${r.data}</dd></div>
+        <div class="item"><dt>Vencimiento</dt><dd>${r.venc||'—'}</dd></div>
+        <div class="item"><dt>Cliente / Destino</dt><dd>${r.cliente}</dd></div>
+        <div class="item"><dt>Vendedor · Región</dt><dd>${r.vendedor} · ${r.region}</dd></div>
+        <div class="item"><dt>Cant. Emitida</dt><dd>${fmt(+r.emitida||0)} un</dd></div>
+        <div class="item"><dt>Cant. Saldo (Stock)</dt><dd>${fmt(+r.estoque||0)} un</dd></div>
+        <div class="item full"><dt>Comentarios</dt><dd class="coment">${r.coment||'Sin observaciones registradas.'}</dd></div>
+      </dl>
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function closeModal(){ document.getElementById('overlay').classList.remove('open'); }
+document.getElementById('overlay').onclick=e=>{ if(e.target.id==='overlay') closeModal(); };
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+/* ============ FILTROS: SELECTS ============ */
+function populateSelects(){
+  const fill=(id,vals,cur)=>{
+    const s=document.getElementById(id);
+    const first=s.options[0].outerHTML;
+    s.innerHTML=first+vals.map(v=>`<option value="${v}" ${cur===v?'selected':''}>${v}</option>`).join('');
+  };
+  fill('fRegion',uniq(CURRENT_DATA.map(r=>r.region)),state.region);
+  fill('fVendedor',uniq(CURRENT_DATA.map(r=>r.vendedor)),state.vendedor);
+  fill('fDeposito',uniq(CURRENT_DATA.map(r=>r.deposito)),state.deposito);
+}
+
+/* ============ RENDER PRINCIPAL ============ */
+function render(){
+  const rows = applyFilters();
+  renderKPIs(rows);
+  renderAging();
+  renderTable(rows);
+}
+
+/* ============ EVENTOS DE FILTRO ============ */
+document.getElementById('fRegion').onchange=e=>{state.region=e.target.value;render();};
+document.getElementById('fVendedor').onchange=e=>{state.vendedor=e.target.value;render();};
+document.getElementById('fDeposito').onchange=e=>{state.deposito=e.target.value;render();};
+document.getElementById('fSearch').oninput=e=>{state.search=e.target.value;render();};
+document.getElementById('clearBtn').onclick=()=>{
+  Object.assign(state,{region:"",vendedor:"",deposito:"",search:"",aging:null});
+  document.getElementById('fSearch').value='';
+  populateSelects();
+  render();
+};
+
+/* ============ CARGA XLSX (SheetJS) ============ */
+const FIELD_MAP = {
+  tipo:['tipo','tipo documento','tipo_doc','categoria'],
+  remito:['remito','remito/doc','documento','doc','nro remito','nro'],
+  puntoEmision:['puntoemision','punto emision','punto de emision','pe','ponto emissao'],
+  vendedor:['vendedor','vendedora','representante'],
+  deposito:['deposito','depósito','almacen','armazem'],
+  cliente:['cliente','destino','razon social'],
+  region:['region','região','zona'],
+  produto:['produto','producto','sku','item','descripcion'],
+  lote:['lote','batch'],
+  data:['data','fecha','fecha documento','fecha_doc','emision'],
+  venc:['venc','vencimiento','vencimento','validade'],
+  status:['status','estado'],
+  emitida:['emitida','cant emitida','cantidad','qtd emitida','emitido'],
+  estoque:['estoque','stock','saldo','existencia','cant saldo'],
+  coment:['coment','comentarios','comentários','obs','observacao','observaciones']
+};
+function normKey(k){ return String(k).toLowerCase().trim().replace(/\s+/g,' ').normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+function mapRow(raw){
+  const norm={}; Object.keys(raw).forEach(k=>norm[normKey(k)]=raw[k]);
+  const out={};
+  Object.keys(FIELD_MAP).forEach(field=>{
+    for(const alias of FIELD_MAP[field]){
+      const a=normKey(alias);
+      if(a in norm && norm[a]!=='' && norm[a]!=null){ out[field]=norm[a]; break; }
+    }
+    if(!(field in out)) out[field]= (field==='emitida'||field==='estoque')?0:'';
+  });
+  if(out.data instanceof Date) out.data = fmtDate(out.data);
+  if(out.venc instanceof Date) out.venc = fmtDate(out.venc);
+  out.emitida=+String(out.emitida).replace(/[^\d.-]/g,'')||0;
+  out.estoque=+String(out.estoque).replace(/[^\d.-]/g,'')||0;
+  if(!out.tipo) out.tipo='Documento';
+  return out;
+}
+function fmtDate(d){ const p=n=>String(n).padStart(2,'0'); return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()}`; }
+
+document.getElementById('fileInput').onchange=e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const wb=XLSX.read(ev.target.result,{type:'array',cellDates:true});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const json=XLSX.utils.sheet_to_json(ws,{defval:''});
+      if(!json.length){ alert('La planilla parece estar vacía.'); return; }
+      CURRENT_DATA = json.map(mapRow);
+      document.getElementById('dbName').textContent=file.name;
+      Object.assign(state,{region:"",vendedor:"",deposito:"",search:"",aging:null});
+      document.getElementById('fSearch').value='';
+      populateSelects();
+      setUpdate();
+      render();
+    }catch(err){ alert('Error al leer el archivo: '+err.message); }
+  };
+  reader.readAsArrayBuffer(file);
+};
+
+/* ============ INIT ============ */
+function setUpdate(){
+  const n=new Date();
+  const p=x=>String(x).padStart(2,'0');
+  document.getElementById('lastUpdate').textContent=`${p(n.getDate())}/${p(n.getMonth()+1)} ${p(n.getHours())}:${p(n.getMinutes())}`;
+}
+populateSelects();
+setUpdate();
+render();
+</script>
+</body>
+</html>
